@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Recruiter Registration - Smart TPO Portal{% endblock %}
+
+{% block public_content %}
+<div class="row justify-content-center py-4">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5">
+            <div class="d-flex align-items-center gap-3 mb-4 border-bottom pb-3">
+                <div class="p-3 bg-secondary bg-opacity-10 text-secondary rounded-circle">
+                    <i class="bi bi-building-add fs-3 text-primary"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-1">Company / Recruiter Registration</h3>
+                    <p class="text-secondary small mb-0">Partner with our Training & Placement Office to conduct on-campus hiring</p>
+                </div>
+            </div>
+
+            <div class="alert alert-info border-0 rounded-3 shadow-none small d-flex align-items-start gap-2 mb-4">
+                <i class="bi bi-info-circle-fill fs-5 text-primary"></i>
+                <div>
+                    <strong>Verification Required:</strong> To prevent unauthorized postings, all recruiter accounts must be reviewed and approved by the TPO administration before access is granted.
+                </div>
+            </div>
+
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-secondary">{{ form.name.label.text }} *</label>
+                    {{ form.name(class="form-control", placeholder="e.g. Google India Pvt. Ltd.") }}
+                    {% for error in form.name.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.email.label.text }} *</label>
+                        {{ form.email(class="form-control", placeholder="hr@company.com") }}
+                        {% for error in form.email.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.industry.label.text }} *</label>
+                        {{ form.industry(class="form-control", placeholder="e.g. IT & Cloud Computing") }}
+                        {% for error in form.industry.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.website.label.text }}</label>
+                        {{ form.website(class="form-control", placeholder="https://company.com") }}
+                        {% for error in form.website.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.hr_contact.label.text }} *</label>
+                        {{ form.hr_contact(class="form-control", placeholder="e.g. Jane Doe (+91 9876543210)") }}
+                        {% for error in form.hr_contact.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.password.label.text }} *</label>
+                        {{ form.password(class="form-control", placeholder="••••••••") }}
+                        {% for error in form.password.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.confirm_password.label.text }} *</label>
+                        {{ form.confirm_password(class="form-control", placeholder="••••••••") }}
+                        {% for error in form.confirm_password.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-2">
+                    <a href="{{ url_for('auth.login') }}" class="text-secondary small text-decoration-none">
+                        Already approved? <span class="text-primary fw-semibold">Sign In</span>
+                    </a>
+                    {{ form.submit(class="btn btn-primary px-4 py-2 fw-semibold shadow-sm") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

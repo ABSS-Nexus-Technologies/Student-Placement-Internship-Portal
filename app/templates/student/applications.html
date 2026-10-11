@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}My Applications & Round Tracking - Student Portal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">My Applications & Selection Tracking</h3>
+        <p class="text-secondary small mb-0">Monitor your recruitment stages, clearance results, and job offer letters</p>
+    </div>
+    <a href="{{ url_for('student.drives') }}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg me-1"></i> Explore More Drives
+    </a>
+</div>
+
+{% if applications %}
+<div class="row g-4">
+    {% for app in applications %}
+    <div class="col-12">
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-white border-bottom p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark">{{ app.drive.title }}</h5>
+                    <span class="text-muted small"><i class="bi bi-building me-1"></i>{{ app.drive.company.name }} &bull; Applied on {{ app.applied_on.strftime('%d %b %Y') }}</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fw-bold text-success me-2">{{ app.drive.package_or_stipend }} LPA</span>
+                    {% if app.status == 'selected' %}
+                        <span class="badge badge-status badge-status-selected fs-6 px-3 py-1">
+                            <i class="bi bi-trophy-fill me-1"></i> Selected / Offered
+                        </span>
+                    {% elif app.status == 'shortlisted' %}
+                        <span class="badge badge-status badge-status-shortlisted fs-6 px-3 py-1">
+                            <i class="bi bi-hourglass-split me-1"></i> Shortlisted ({{ app.current_round }})
+                        </span>
+                    {% elif app.status == 'rejected' %}
+                        <span class="badge badge-status badge-status-rejected fs-6 px-3 py-1">
+                            <i class="bi bi-x-circle me-1"></i> Not Selected
+                        </span>
+                    {% else %}
+                        <span class="badge badge-status badge-status-applied fs-6 px-3 py-1">
+                            <i class="bi bi-check2 me-1"></i> Application Received
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <!-- OFFER BANNER IF SELECTED -->
+                {% if app.placement %}
+                <div class="alert alert-success border-0 rounded-3 shadow-none p-3 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="p-2 bg-success text-white rounded-circle">
+                            <i class="bi bi-award-fill fs-4"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-6">Official Offer Extended by {{ app.drive.company.name }}!</div>
+                            <div class="small">Offered Package: <strong>{{ app.placement.package }} LPA</strong> &bull; Offer Date: {{ app.placement.offer_date.strftime('%d %b %Y') }}</div>
+                        </div>
+                    </div>
+                    <span class="badge bg-success px-3 py-2 text-uppercase">{{ app.placement.offer_status }}</span>
+                </div>
+                {% endif %}
+
+                <!-- ROUNDS PROGRESS TIMELINE -->
+                <h6 class="fw-bold text-secondary text-uppercase small mb-3">Recruitment Rounds & Evaluations</h6>
+                {% set drive_rounds = app.drive.rounds.all() %}
+                {% if drive_rounds %}
+                    <div class="row g-3">
+                        {% for round in drive_rounds %}
+                            {% set round_res = app.round_results.filter_by(round_id=round.round_id).first() %}
+                            <div class="col-md-4">
+                                <div class="p-3 rounded-3 border h-100 {% if round_res and round_res.result == 'cleared' %}bg-success bg-opacity-10 border-success{% elif round_res and round_res.result == 'failed' %}bg-danger bg-opacity-10 border-danger{% else %}bg-light{% endif %}">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div class="fw-bold text-dark">{{ round.round_name }}</div>
+                                        {% if round_res %}
+                                            {% if round_res.result == 'cleared' %}
+                                                <span class="badge bg-success"><i class="bi bi-check-lg"></i> Cleared</span>
+                                            {% elif round_res.result == 'failed' %}
+                                                <span class="badge bg-danger"><i class="bi bi-x-lg"></i> Eliminated</span>
+                                            {% elif round_res.result == 'absent' %}
+                                                <span class="badge bg-secondary">Absent</span>
+                                            {% else %}
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-secondary-subtle text-secondary border">Awaiting Evaluation</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="small text-muted mb-1">
+                                        <i class="bi bi-clock me-1"></i>{{ round.round_date.strftime('%d %b %Y, %I:%M %p') }}
+                                    </div>
+                                    <div class="small text-muted mb-2">
+                                        <i class="bi bi-broadcast me-1"></i>Mode: {{ round.mode.upper() }}
+                                    </div>
+                                    {% if round_res and round_res.remarks %}
+                                        <div class="small text-secondary fst-italic border-top pt-1 mt-1">
+                                            Feedback: "{{ round_res.remarks }}"
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-3 bg-light rounded-3 text-secondary small">
+                        <i class="bi bi-info-circle me-1 text-primary"></i>
+                        The recruiter has not yet finalized round schedules for this drive. You will be notified via portal alert once scheduled.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card p-5 text-center border-0 shadow-sm rounded-4">
+    <i class="bi bi-send-x fs-1 text-secondary mb-3"></i>
+    <h4 class="fw-bold">No Applications Submitted Yet</h4>
+    <p class="text-secondary mx-auto" style="max-width: 500px;">
+        You have not applied for any campus recruitment drives. Check your Eligible Drives tab and apply with one click to kickstart your placement journey.
+    </p>
+    <div>
+        <a href="{{ url_for('student.drives') }}" class="btn btn-primary px-4">
+            Browse Eligible Drives
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

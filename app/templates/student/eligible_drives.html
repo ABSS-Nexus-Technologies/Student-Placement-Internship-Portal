@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %}Campus Recruitment Drives - Student Portal{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Campus Recruitment Drives</h3>
+        <p class="text-secondary small mb-0">Automated eligibility evaluation matching your credentials (CGPA: {{ student.cgpa }}, Branch: {{ student.branch }}, Backlogs: {{ student.active_backlogs }})</p>
+    </div>
+    <div class="btn-group mt-3 mt-sm-0" role="group">
+        <a href="{{ url_for('student.drives', view='eligible') }}" class="btn btn-sm {% if not show_all %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            <i class="bi bi-check-circle-fill me-1"></i> Eligible Drives ({{ eligible_drives|length }})
+        </a>
+        <a href="{{ url_for('student.drives', view='all') }}" class="btn btn-sm {% if show_all %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            <i class="bi bi-funnel-fill me-1"></i> All Drives & Reasons ({{ eligible_drives|length + ineligible_drives|length }})
+        </a>
+    </div>
+</div>
+
+{% if not show_all %}
+    <!-- ELIGIBLE DRIVES ONLY VIEW -->
+    {% if eligible_drives %}
+        <div class="row g-4">
+            {% for item in eligible_drives %}
+            <div class="col-md-6 col-xl-4">
+                <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
+                    <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                            {{ item.drive.type.title() }}
+                        </span>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                            <i class="bi bi-check-lg me-1"></i> 100% Eligible
+                        </span>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-direction-column flex-column justify-content-between">
+                        <div>
+                            <h5 class="fw-bold text-dark mb-1">{{ item.drive.title }}</h5>
+                            <div class="text-muted fw-semibold small mb-3">
+                                <i class="bi bi-building me-1"></i>{{ item.drive.company.name }}
+                            </div>
+
+                            <div class="p-3 bg-light rounded-3 mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-secondary small">Package/Stipend:</span>
+                                    <span class="fw-bold text-success">{{ item.drive.package_or_stipend }} LPA</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-secondary small">Min CGPA Required:</span>
+                                    <span class="fw-semibold text-dark">{{ item.drive.min_cgpa }} (Yours: {{ student.cgpa }})</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-secondary small">Max Backlogs:</span>
+                                    <span class="fw-semibold text-dark">{{ item.drive.max_backlogs }} (Yours: {{ student.active_backlogs }})</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-secondary small">Allowed Branches:</span>
+                                    <span class="fw-semibold text-dark small">{{ item.drive.allowed_branches }}</span>
+                                </div>
+                            </div>
+
+                            {% if item.drive.description %}
+                            <p class="text-secondary small text-truncate-3 mb-3">
+                                {{ item.drive.description }}
+                            </p>
+                            {% endif %}
+                        </div>
+
+                        <div class="pt-3 border-top d-flex justify-content-between align-items-center mt-3">
+                            <div class="small text-danger fw-semibold">
+                                <i class="bi bi-alarm me-1"></i>Ends: {{ item.drive.last_date.strftime('%d %b %Y') }}
+                            </div>
+                            {% if item.has_applied %}
+                                <span class="badge badge-status badge-status-applied px-3 py-2">
+                                    <i class="bi bi-check2-circle me-1"></i> Already Applied
+                                </span>
+                            {% else %}
+                                <form method="POST" action="{{ url_for('student.apply_drive', drive_id=item.drive.drive_id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-primary btn-sm px-3 shadow-sm">
+                                        <i class="bi bi-send-fill me-1"></i> Apply 1-Click
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card p-5 text-center border-0 shadow-sm rounded-4">
+            <i class="bi bi-search fs-1 text-secondary mb-3"></i>
+            <h4 class="fw-bold">No Eligible Drives Available Right Now</h4>
+            <p class="text-secondary mx-auto" style="max-width: 500px;">
+                There are currently no active campus drives matching your branch, CGPA, or backlog criteria. When new drives are posted by recruiters, you will automatically receive an in-portal notification.
+            </p>
+            <div>
+                <a href="{{ url_for('student.drives', view='all') }}" class="btn btn-outline-primary btn-sm">
+                    View Other Campus Drives & Eligibility Diagnostic
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+{% else %}
+    <!-- ALL DRIVES + DIAGNOSTIC REASONS VIEW -->
+    <div class="card border-0 shadow-sm rounded-4 p-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-list-check text-primary me-2"></i>Campus Drives Eligibility Diagnostic</h5>
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>Drive & Company</th>
+                        <th>Package</th>
+                        <th>Target Criteria</th>
+                        <th>Eligibility Status</th>
+                        <th>Detailed Reason(s)</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in eligible_drives %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">{{ item.drive.title }}</div>
+                            <div class="small text-muted">{{ item.drive.company.name }} &bull; {{ item.drive.type.title() }}</div>
+                        </td>
+                        <td><span class="fw-bold text-success">{{ item.drive.package_or_stipend }} LPA</span></td>
+                        <td class="small text-secondary">
+                            <div>Min CGPA: {{ item.drive.min_cgpa }}</div>
+                            <div>Max Backlog: {{ item.drive.max_backlogs }}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                <i class="bi bi-check-circle-fill me-1"></i> Eligible
+                            </span>
+                        </td>
+                        <td class="small text-success">
+                            All criteria satisfied.
+                        </td>
+                        <td class="text-end">
+                            {% if item.has_applied %}
+                                <span class="badge badge-status badge-status-applied">Applied</span>
+                            {% else %}
+                                <form method="POST" action="{{ url_for('student.apply_drive', drive_id=item.drive.drive_id) }}" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-primary">Apply</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                    {% for item in ineligible_drives %}
+                    <tr class="table-light">
+                        <td>
+                            <div class="fw-bold text-dark opacity-75">{{ item.drive.title }}</div>
+                            <div class="small text-muted">{{ item.drive.company.name }} &bull; {{ item.drive.type.title() }}</div>
+                        </td>
+                        <td><span class="fw-semibold text-secondary">{{ item.drive.package_or_stipend }} LPA</span></td>
+                        <td class="small text-secondary">
+                            <div>Min CGPA: {{ item.drive.min_cgpa }}</div>
+                            <div>Allowed: {{ item.drive.allowed_branches }}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                <i class="bi bi-x-circle-fill me-1"></i> Not Eligible
+                            </span>
+                        </td>
+                        <td>
+                            <ul class="mb-0 ps-3 small text-danger">
+                                {% for reason in item.eligibility.reasons %}
+                                    <li>{{ reason }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-secondary" disabled title="Ineligible">
+                                Ineligible
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

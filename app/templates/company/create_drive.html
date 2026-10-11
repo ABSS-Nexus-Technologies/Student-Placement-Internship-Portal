@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Post New Campus Drive - Recruiter Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-header bg-white border-bottom p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle">
+                        <i class="bi bi-briefcase-fill fs-3"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1">Post New Recruitment / Internship Drive</h4>
+                        <p class="text-secondary small mb-0">Define eligibility criteria; eligible students are automatically notified upon publishing</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.title.label.text }} *</label>
+                        {{ form.title(class="form-control", placeholder="e.g. Graduate Software Engineer - 2026 Batch") }}
+                        {% for error in form.title.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.type.label.text }} *</label>
+                            {{ form.type(class="form-select") }}
+                            {% for error in form.type.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.package_or_stipend.label.text }} *</label>
+                            {{ form.package_or_stipend(class="form-control", placeholder="e.g. 12.5 (in LPA) or monthly stipend", step="0.1") }}
+                            {% for error in form.package_or_stipend.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.min_cgpa.label.text }} *</label>
+                            {{ form.min_cgpa(class="form-control", placeholder="e.g. 7.0", step="0.1") }}
+                            {% for error in form.min_cgpa.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.max_backlogs.label.text }} *</label>
+                            {{ form.max_backlogs(class="form-control", placeholder="0") }}
+                            {% for error in form.max_backlogs.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.batch_year.label.text }} *</label>
+                            {{ form.batch_year(class="form-control", placeholder="2026") }}
+                            {% for error in form.batch_year.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.allowed_branches.label.text }} *</label>
+                        {{ form.allowed_branches(class="form-select", size="5") }}
+                        <div class="form-text small">Hold Ctrl (or Cmd on Mac) to select multiple specific branches, or select "ALL Branches".</div>
+                        {% for error in form.allowed_branches.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.last_date.label.text }} *</label>
+                            {{ form.last_date(class="form-control", type="date") }}
+                            {% for error in form.last_date.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.status.label.text }} *</label>
+                            {{ form.status(class="form-select") }}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.description.label.text }}</label>
+                        {{ form.description(class="form-control", rows="4", placeholder="Detailed role description, responsibilities, selection process, and bonding conditions...") }}
+                        {% for error in form.description.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('company.drives') }}" class="btn btn-outline-secondary">Cancel</a>
+                        {{ form.submit(class="btn btn-primary px-4 fw-semibold shadow-sm") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

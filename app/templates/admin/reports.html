@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Placement Analytics & Excel Reports - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-header bg-white border-bottom p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 bg-success bg-opacity-10 text-success rounded-circle">
+                        <i class="bi bi-file-earmark-excel-fill fs-3"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1">Placement Excel Reports Generator</h4>
+                        <p class="text-secondary small mb-0">One-click generation of professional .xlsx workbooks with executive summaries and KPI metrics</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-dark">{{ form.report_type.label.text }} *</label>
+                        {{ form.report_type(class="form-select form-select-lg") }}
+                        <div class="form-text small">
+                            Choose between granular student-by-student records, corporate recruiter performance, or branch-level statistical breakdowns.
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-light rounded-3 border mb-4">
+                        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-funnel-fill text-primary me-2"></i>Multi-Dimension Report Filters</h6>
+                        
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-secondary">{{ form.batch_year.label.text }}</label>
+                                {{ form.batch_year(class="form-control", placeholder="Leave blank for all years (e.g. 2026)") }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-secondary">{{ form.branch.label.text }}</label>
+                                {{ form.branch(class="form-select") }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.company_id.label.text }}</label>
+                            {{ form.company_id(class="form-select") }}
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-secondary">{{ form.start_date.label.text }}</label>
+                                {{ form.start_date(class="form-control", type="date") }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small text-secondary">{{ form.end_date.label.text }}</label>
+                                {{ form.end_date(class="form-control", type="date") }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EXCEL SPECIFICATIONS INFO BOX -->
+                    <div class="p-3 bg-white border rounded-3 mb-4 small text-secondary">
+                        <div class="fw-bold text-dark mb-1"><i class="bi bi-check2-circle text-success me-1"></i> Formatted Openpyxl Features Included:</div>
+                        <ul class="mb-0 ps-3">
+                            <li><strong>Executive Summary Sheet:</strong> Placement percentage, Highest/Average/Median CTC, registered vs placed counts.</li>
+                            <li><strong>Styling:</strong> Custom branded palette, white bold headers, thin borders, auto-fitted column widths, and frozen header rows.</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+                        {{ form.submit(class="btn btn-success px-4 py-2 fw-semibold shadow-sm") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

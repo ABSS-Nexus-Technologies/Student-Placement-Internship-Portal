@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}All Applications - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Campus Application Registry</h3>
+        <p class="text-secondary small mb-0">Total Application Records: <strong>{{ applications|length }}</strong></p>
+    </div>
+    <div class="btn-group mt-3 mt-sm-0" role="group">
+        <a href="{{ url_for('admin.applications', status='all') }}" class="btn btn-sm {% if status_filter == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            All ({{ applications|length }})
+        </a>
+        <a href="{{ url_for('admin.applications', status='applied') }}" class="btn btn-sm {% if status_filter == 'applied' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            Applied
+        </a>
+        <a href="{{ url_for('admin.applications', status='shortlisted') }}" class="btn btn-sm {% if status_filter == 'shortlisted' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            Shortlisted
+        </a>
+        <a href="{{ url_for('admin.applications', status='selected') }}" class="btn btn-sm {% if status_filter == 'selected' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            Selected / Offered
+        </a>
+        <a href="{{ url_for('admin.applications', status='rejected') }}" class="btn btn-sm {% if status_filter == 'rejected' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            Rejected
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+    <div class="card-body p-0">
+        {% if applications %}
+            <div class="table-responsive">
+                <table class="table table-custom">
+                    <thead>
+                        <tr>
+                            <th>Student Details</th>
+                            <th>Drive Title & Company</th>
+                            <th>Applied Date</th>
+                            <th>Current Round</th>
+                            <th>Selection Status</th>
+                            <th>Offer Package</th>
+                            <th>Resume</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">{{ app.student.name }}</div>
+                                <div class="small text-muted">{{ app.student.roll_no }} &bull; {{ app.student.branch }} (CGPA: {{ app.student.cgpa }})</div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ app.drive.title }}</div>
+                                <div class="small text-muted"><i class="bi bi-building me-1"></i>{{ app.drive.company.name }}</div>
+                            </td>
+                            <td class="small text-secondary">{{ app.applied_on.strftime('%d %b %Y, %I:%M %p') }}</td>
+                            <td>
+                                <span class="small fw-semibold text-dark">{{ app.current_round }}</span>
+                            </td>
+                            <td>
+                                {% if app.status == 'selected' %}
+                                    <span class="badge badge-status badge-status-selected">
+                                        <i class="bi bi-trophy-fill"></i> Selected
+                                    </span>
+                                {% elif app.status == 'shortlisted' %}
+                                    <span class="badge badge-status badge-status-shortlisted">
+                                        <i class="bi bi-hourglass-split"></i> Shortlisted
+                                    </span>
+                                {% elif app.status == 'rejected' %}
+                                    <span class="badge badge-status badge-status-rejected">
+                                        <i class="bi bi-x-circle"></i> Rejected
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-status badge-status-applied">
+                                        <i class="bi bi-check2"></i> Applied
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if app.placement %}
+                                    <span class="fw-bold text-success">{{ app.placement.package }} LPA</span>
+                                    <div class="text-muted" style="font-size: 0.7rem;">({{ app.placement.offer_status }})</div>
+                                {% else %}
+                                    <span class="text-muted small">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if app.student.resume_path %}
+                                    <a href="{{ url_for('student.download_resume', filename=app.student.resume_path) }}" target="_blank" class="btn btn-sm btn-outline-danger py-0 px-2">
+                                        <i class="bi bi-file-earmark-pdf-fill"></i>
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted small">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="p-5 text-center text-muted">
+                <i class="bi bi-file-earmark-x fs-1 text-secondary mb-3 d-block"></i>
+                <h5 class="fw-bold">No Applications Found</h5>
+                <p class="small text-secondary">No applications match the current status filter.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

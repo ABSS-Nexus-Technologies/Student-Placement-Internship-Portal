@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block title %}Bulk Student Importer - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-header bg-white border-bottom p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle">
+                        <i class="bi bi-cloud-arrow-up-fill fs-3"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1">Bulk Student Importer (Excel & CSV)</h4>
+                        <p class="text-secondary small mb-0">Upload master institutional spreadsheets. Automatic verification rejects duplicates and CGPA outside [0.0, 10.0].</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <!-- TEMPLATE FORMAT HELPER -->
+                <div class="p-3 bg-light rounded-3 border mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold text-dark small"><i class="bi bi-table text-primary me-1"></i> Required Column Headers</span>
+                        <span class="badge bg-secondary-subtle text-secondary">.xlsx, .xls, .csv</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered bg-white small mb-0 text-center">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>name *</th>
+                                    <th>roll_no *</th>
+                                    <th>email *</th>
+                                    <th>branch *</th>
+                                    <th>cgpa *</th>
+                                    <th>passing_year *</th>
+                                    <th>active_backlogs</th>
+                                    <th>skills</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Aarav Sharma</td>
+                                    <td>22CS0101</td>
+                                    <td>aarav@college.edu</td>
+                                    <td>CSE</td>
+                                    <td>8.95</td>
+                                    <td>2026</td>
+                                    <td>0</td>
+                                    <td>Python, SQL, React</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="form-text small mt-2">
+                        <strong>Validation Rules:</strong> Roll numbers and emails must be unique. CGPA must be between <code>0.00</code> and <code>10.00</code>. Default student login password will be their Roll Number.
+                    </div>
+                </div>
+
+                <!-- UPLOAD FORM -->
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.file.label.text }}</label>
+                        {{ form.file(class="form-control", accept=".xlsx,.xls,.csv") }}
+                        {% for error in form.file.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        {{ form.submit(class="btn btn-primary px-4 fw-semibold shadow-sm") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- POST-IMPORT RESULTS & REJECTION ERROR REPORT -->
+        {% if results %}
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+            <div class="card-header bg-white border-bottom p-4">
+                <h5 class="fw-bold mb-1">Import Execution Summary</h5>
+                <div class="d-flex gap-3 mt-2">
+                    <span class="badge bg-light text-dark border px-3 py-2">
+                        Total Processed: <strong>{{ results.total_rows }}</strong>
+                    </span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                        <i class="bi bi-check-circle-fill me-1"></i> Successfully Added: <strong>{{ results.success_count }}</strong>
+                    </span>
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Rejected Rows: <strong>{{ results.error_count }}</strong>
+                    </span>
+                </div>
+            </div>
+
+            <!-- DETAILED ERROR REPORT TABLE -->
+            {% if results.errors %}
+            <div class="p-4 border-bottom bg-danger bg-opacity-10">
+                <h6 class="fw-bold text-danger mb-3">
+                    <i class="bi bi-shield-x me-1"></i> Validation Rejection Report ({{ results.errors|length }} Errors)
+                </h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered bg-white small mb-0">
+                        <thead class="table-danger">
+                            <tr>
+                                <th>File Row #</th>
+                                <th>Roll Number</th>
+                                <th>Student Name</th>
+                                <th>Rejection Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for err in results.errors %}
+                            <tr>
+                                <td class="fw-bold text-center">{{ err.row }}</td>
+                                <td class="fw-semibold">{{ err.roll_no }}</td>
+                                <td>{{ err.name }}</td>
+                                <td class="text-danger fw-medium">{{ err.error }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- SUCCESSFULLY IMPORTED TABLE -->
+            {% if results.imported_students %}
+            <div class="p-4">
+                <h6 class="fw-bold text-success mb-3">
+                    <i class="bi bi-check-circle-fill me-1"></i> Successfully Created Profiles ({{ results.imported_students|length }})
+                </h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th>Roll Number</th>
+                                <th>Student Name</th>
+                                <th>Email Account</th>
+                                <th>Branch</th>
+                                <th>CGPA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in results.imported_students[:15] %}
+                            <tr>
+                                <td class="fw-bold text-dark">{{ s.roll_no }}</td>
+                                <td>{{ s.name }}</td>
+                                <td class="small text-muted">{{ s.email }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ s.branch }}</span></td>
+                                <td class="fw-bold text-primary">{{ s.cgpa }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if results.imported_students|length > 15 %}
+                        <div class="text-center text-muted small mt-2">Showing first 15 records. View all in the Students directory.</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Student Registration - Smart TPO Portal{% endblock %}
+
+{% block public_content %}
+<div class="row justify-content-center py-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5">
+            <div class="d-flex align-items-center gap-3 mb-4 border-bottom pb-3">
+                <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle">
+                    <i class="bi bi-person-plus-fill fs-3"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-1">Student Portal Registration</h3>
+                    <p class="text-secondary small mb-0">Create your verified student profile to access campus recruitment drives</p>
+                </div>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.name.label.text }} *</label>
+                        {{ form.name(class="form-control", placeholder="e.g. Shubham Kumar") }}
+                        {% for error in form.name.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.roll_no.label.text }} *</label>
+                        {{ form.roll_no(class="form-control", placeholder="e.g. 22CS0104") }}
+                        {% for error in form.roll_no.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.email.label.text }} *</label>
+                        {{ form.email(class="form-control", placeholder="student@college.edu") }}
+                        {% for error in form.email.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.branch.label.text }} *</label>
+                        {{ form.branch(class="form-select") }}
+                        {% for error in form.branch.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.cgpa.label.text }} *</label>
+                        {{ form.cgpa(class="form-control", placeholder="e.g. 8.75", step="0.01") }}
+                        {% for error in form.cgpa.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.active_backlogs.label.text }} *</label>
+                        {{ form.active_backlogs(class="form-control", placeholder="0") }}
+                        {% for error in form.active_backlogs.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.passing_year.label.text }} *</label>
+                        {{ form.passing_year(class="form-control", placeholder="2026") }}
+                        {% for error in form.passing_year.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-secondary">{{ form.skills.label.text }}</label>
+                    {{ form.skills(class="form-control", rows="2", placeholder="e.g. Python, Flask, React, SQL, Git, Data Structures") }}
+                    {% for error in form.skills.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-secondary">{{ form.resume.label.text }}</label>
+                    {{ form.resume(class="form-control", accept=".pdf") }}
+                    <div class="form-text small">Accepted format: PDF only. Maximum size: 5MB.</div>
+                    {% for error in form.resume.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.password.label.text }} *</label>
+                        {{ form.password(class="form-control", placeholder="••••••••") }}
+                        {% for error in form.password.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.confirm_password.label.text }} *</label>
+                        {{ form.confirm_password(class="form-control", placeholder="••••••••") }}
+                        {% for error in form.confirm_password.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-2">
+                    <a href="{{ url_for('auth.login') }}" class="text-secondary small text-decoration-none">
+                        Already have an account? <span class="text-primary fw-semibold">Sign In</span>
+                    </a>
+                    {{ form.submit(class="btn btn-primary px-4 py-2 fw-semibold shadow-sm") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

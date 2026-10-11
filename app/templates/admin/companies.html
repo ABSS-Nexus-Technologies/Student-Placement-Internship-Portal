@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Manage Companies - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Company Accreditation & Verification</h3>
+        <p class="text-secondary small mb-0">Approve or reject recruiting partner registrations to authorize drive publishing</p>
+    </div>
+    <div class="btn-group mt-3 mt-sm-0" role="group">
+        <a href="{{ url_for('admin.companies', status='all') }}" class="btn btn-sm {% if status_filter == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            All ({{ companies|length }})
+        </a>
+        <a href="{{ url_for('admin.companies', status='pending') }}" class="btn btn-sm {% if status_filter == 'pending' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            Pending Approval
+        </a>
+        <a href="{{ url_for('admin.companies', status='approved') }}" class="btn btn-sm {% if status_filter == 'approved' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            Approved
+        </a>
+        <a href="{{ url_for('admin.companies', status='rejected') }}" class="btn btn-sm {% if status_filter == 'rejected' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            Rejected
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+    <div class="card-body p-0">
+        {% if companies %}
+            <div class="table-responsive">
+                <table class="table table-custom">
+                    <thead>
+                        <tr>
+                            <th>Company Name</th>
+                            <th>Industry & Website</th>
+                            <th>HR Contact</th>
+                            <th>Email Account</th>
+                            <th>Approval Status</th>
+                            <th>Drives Posted</th>
+                            <th class="text-end">Verification Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for comp in companies %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">{{ comp.name }}</div>
+                                <div class="small text-muted">ID: #{{ comp.company_id }}</div>
+                            </td>
+                            <td>
+                                <div>{{ comp.industry or 'Technology' }}</div>
+                                {% if comp.website %}
+                                <a href="{{ comp.website }}" target="_blank" class="small text-primary text-decoration-none">
+                                    <i class="bi bi-box-arrow-up-right me-1"></i>{{ comp.website }}
+                                </a>
+                                {% else %}
+                                <span class="small text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="small">{{ comp.hr_contact }}</td>
+                            <td class="small text-muted">{{ comp.user.email }}</td>
+                            <td>
+                                {% if comp.approval_status == 'approved' %}
+                                    <span class="badge badge-status badge-status-approved">
+                                        <i class="bi bi-check-circle-fill"></i> Approved
+                                    </span>
+                                {% elif comp.approval_status == 'pending' %}
+                                    <span class="badge badge-status badge-status-pending">
+                                        <i class="bi bi-hourglass-split"></i> Pending Approval
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-status badge-status-rejected">
+                                        <i class="bi bi-x-circle"></i> Rejected
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ comp.drives.count() }} drives</span>
+                            </td>
+                            <td class="text-end">
+                                {% if comp.approval_status != 'approved' %}
+                                <form method="POST" action="{{ url_for('admin.handle_company_approval', company_id=comp.company_id, action='approve') }}" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-success px-2 py-1" title="Approve Company">
+                                        <i class="bi bi-check-lg me-1"></i> Approve
+                                    </button>
+                                </form>
+                                {% endif %}
+
+                                {% if comp.approval_status != 'rejected' %}
+                                <form method="POST" action="{{ url_for('admin.handle_company_approval', company_id=comp.company_id, action='reject') }}" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger px-2 py-1" title="Reject / Deactivate Company" data-confirm="Deactivate this company?">
+                                        <i class="bi bi-slash-circle me-1"></i> Reject
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="p-5 text-center text-muted">
+                <i class="bi bi-building fs-1 text-secondary mb-3 d-block"></i>
+                <h5 class="fw-bold">No Companies Found</h5>
+                <p class="small text-secondary">No recruiter accounts match the selected status filter.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Our Campus Drives - {{ company.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Our Campus Drives</h3>
+        <p class="text-secondary small mb-0">Manage placement & internship criteria, deadlines, and applicant pipelines</p>
+    </div>
+    <a href="{{ url_for('company.create_drive') }}" class="btn btn-primary btn-sm px-3 shadow-sm">
+        <i class="bi bi-plus-lg me-1"></i> Post New Drive
+    </a>
+</div>
+
+{% if drives %}
+<div class="row g-4">
+    {% for drive in drives %}
+    <div class="col-md-6 col-xl-4">
+        <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
+            <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                    {{ drive.type.title() }}
+                </span>
+                <span class="badge {% if drive.status == 'active' %}bg-success-subtle text-success border border-success-subtle{% else %}bg-secondary-subtle text-secondary border{% endif %} px-2 py-1">
+                    {{ drive.status.title() }}
+                </span>
+            </div>
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="fw-bold text-dark mb-2">{{ drive.title }}</h5>
+                    <div class="fw-bold text-success fs-5 mb-3">{{ drive.package_or_stipend }} LPA</div>
+
+                    <div class="p-3 bg-light rounded-3 mb-3 small">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Target Batch:</span>
+                            <span class="fw-semibold text-dark">{{ drive.batch_year }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Min CGPA:</span>
+                            <span class="fw-semibold text-dark">{{ drive.min_cgpa }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Max Backlogs:</span>
+                            <span class="fw-semibold text-dark">{{ drive.max_backlogs }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">Branches:</span>
+                            <span class="fw-semibold text-dark">{{ drive.allowed_branches }}</span>
+                        </div>
+                    </div>
+
+                    <div class="small text-danger mb-3">
+                        <i class="bi bi-calendar-event me-1"></i>Deadline: {{ drive.last_date.strftime('%d %b %Y') }}
+                    </div>
+                </div>
+
+                <div class="pt-3 border-top mt-auto">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-primary rounded-pill px-3 py-1 fs-6">{{ drive.applications.count() }} Applicants</span>
+                        <a href="{{ url_for('company.edit_drive', drive_id=drive.drive_id) }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-pencil me-1"></i> Edit
+                        </a>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('company.drive_applicants', drive_id=drive.drive_id) }}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-people-fill me-1"></i> Review Applicants
+                        </a>
+                        <a href="{{ url_for('company.manage_rounds', drive_id=drive.drive_id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-diagram-3-fill me-1"></i> Manage Rounds & Results
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card p-5 text-center border-0 shadow-sm rounded-4">
+    <i class="bi bi-briefcase fs-1 text-secondary mb-3"></i>
+    <h4 class="fw-bold">No Campus Drives Posted Yet</h4>
+    <p class="text-secondary mx-auto" style="max-width: 500px;">
+        Post your first placement or internship opportunity to automatically match with thousands of eligible students across branches.
+    </p>
+    <div>
+        <a href="{{ url_for('company.create_drive') }}" class="btn btn-primary px-4">
+            Post Drive Now
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

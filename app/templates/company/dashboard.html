@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Recruiter Dashboard - {{ company.name }}{% endblock %}
+
+{% block content %}
+<!-- COMPANY HEADER BANNER -->
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h3 class="fw-bold mb-1">{{ company.name }} - Recruitment Cell</h3>
+        <div class="text-secondary small d-flex flex-wrap align-items-center gap-3">
+            <span><i class="bi bi-briefcase me-1"></i><strong>Industry:</strong> {{ company.industry or 'Technology' }}</span>
+            <span><i class="bi bi-globe me-1"></i><strong>Website:</strong> <a href="{{ company.website }}" target="_blank" class="text-decoration-none">{{ company.website or 'N/A' }}</a></span>
+            <span><i class="bi bi-person-badge me-1"></i><strong>HR:</strong> {{ company.hr_contact }}</span>
+            <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle-fill me-1"></i> Approved Partner</span>
+        </div>
+    </div>
+    <div class="mt-3 mt-md-0 d-flex gap-2">
+        <a href="{{ url_for('company.create_drive') }}" class="btn btn-primary btn-sm px-3 shadow-sm">
+            <i class="bi bi-plus-circle me-1"></i> Post New Drive
+        </a>
+        <a href="{{ url_for('company.profile') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-gear me-1"></i> Edit Profile
+        </a>
+    </div>
+</div>
+
+<!-- STAT CARDS -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Campus Drives</span>
+                <div class="stat-card-icon stat-icon-blue">
+                    <i class="bi bi-briefcase-fill"></i>
+                </div>
+            </div>
+            <div class="stat-card-value">{{ drives|length }}</div>
+            <div class="stat-card-caption">Total published opportunities</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Total Applicants</span>
+                <div class="stat-card-icon stat-icon-amber">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
+            <div class="stat-card-value">{{ total_applicants }}</div>
+            <div class="stat-card-caption">Eligible student submissions</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Shortlisted</span>
+                <div class="stat-card-icon stat-icon-purple">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+            </div>
+            <div class="stat-card-value">{{ shortlisted_count }}</div>
+            <div class="stat-card-caption">Candidates in active rounds</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Final Selections</span>
+                <div class="stat-card-icon stat-icon-green">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
+            </div>
+            <div class="stat-card-value">{{ selected_count }}</div>
+            <div class="stat-card-caption">Official offers extended</div>
+        </div>
+    </div>
+</div>
+
+<!-- ACTIVE DRIVES LIST -->
+<div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+        <span class="fw-bold fs-6"><i class="bi bi-briefcase text-primary me-2"></i>Active Campus Drives</span>
+        <a href="{{ url_for('company.create_drive') }}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-plus-lg me-1"></i> Add Drive
+        </a>
+    </div>
+    <div class="card-body p-0">
+        {% if drives %}
+            <div class="table-responsive">
+                <table class="table table-custom">
+                    <thead>
+                        <tr>
+                            <th>Drive Title</th>
+                            <th>Type & Package</th>
+                            <th>Target Batch</th>
+                            <th>Criteria</th>
+                            <th>Deadline</th>
+                            <th>Applicants</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for drive in drives %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">{{ drive.title }}</div>
+                                <span class="badge bg-light text-dark border">{{ drive.status.title() }}</span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-success">{{ drive.package_or_stipend }} LPA</div>
+                                <div class="small text-muted">{{ drive.type.title() }}</div>
+                            </td>
+                            <td>{{ drive.batch_year }}</td>
+                            <td class="small text-secondary">
+                                <div>Min CGPA: {{ drive.min_cgpa }}</div>
+                                <div>Branches: {{ drive.allowed_branches }}</div>
+                            </td>
+                            <td class="small text-secondary">{{ drive.last_date.strftime('%d %b %Y') }}</td>
+                            <td>
+                                <span class="badge bg-primary rounded-pill px-2 py-1">{{ drive.applications.count() }} applicants</span>
+                            </td>
+                            <td class="text-end">
+                                <a href="{{ url_for('company.drive_applicants', drive_id=drive.drive_id) }}" class="btn btn-sm btn-soft-primary me-1" title="Review Applicants">
+                                    <i class="bi bi-people me-1"></i> Applicants
+                                </a>
+                                <a href="{{ url_for('company.manage_rounds', drive_id=drive.drive_id) }}" class="btn btn-sm btn-outline-secondary me-1" title="Manage Assessment Rounds">
+                                    <i class="bi bi-diagram-3 me-1"></i> Rounds
+                                </a>
+                                <a href="{{ url_for('company.edit_drive', drive_id=drive.drive_id) }}" class="btn btn-sm btn-outline-secondary" title="Edit Drive">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="p-5 text-center text-muted">
+                <i class="bi bi-briefcase fs-1 text-secondary mb-3 d-block"></i>
+                <h5 class="fw-bold">No Campus Drives Created Yet</h5>
+                <p class="small text-secondary">Start hiring students by posting your first recruitment or internship drive.</p>
+                <a href="{{ url_for('company.create_drive') }}" class="btn btn-primary btn-sm px-3">Post Drive Now</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

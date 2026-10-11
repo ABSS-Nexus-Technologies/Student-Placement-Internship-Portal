@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Edit Campus Drive - {{ drive.title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-header bg-white border-bottom p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 bg-secondary bg-opacity-10 text-primary rounded-circle">
+                        <i class="bi bi-pencil-square fs-3"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1">Edit Campus Drive Details</h4>
+                        <p class="text-secondary small mb-0">{{ drive.title }} &bull; Drive ID: #{{ drive.drive_id }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.title.label.text }}</label>
+                        {{ form.title(class="form-control") }}
+                        {% for error in form.title.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.type.label.text }}</label>
+                            {{ form.type(class="form-select") }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.package_or_stipend.label.text }}</label>
+                            {{ form.package_or_stipend(class="form-control", step="0.1") }}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.min_cgpa.label.text }}</label>
+                            {{ form.min_cgpa(class="form-control", step="0.1") }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.max_backlogs.label.text }}</label>
+                            {{ form.max_backlogs(class="form-control") }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.batch_year.label.text }}</label>
+                            {{ form.batch_year(class="form-control") }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.allowed_branches.label.text }}</label>
+                        {{ form.allowed_branches(class="form-select", size="5") }}
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.last_date.label.text }}</label>
+                            {{ form.last_date(class="form-control", type="date") }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.status.label.text }}</label>
+                            {{ form.status(class="form-select") }}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.description.label.text }}</label>
+                        {{ form.description(class="form-control", rows="4") }}
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('company.drives') }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-semibold">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

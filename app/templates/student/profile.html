@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}My Profile & Resume - Student Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-header bg-white border-bottom p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-circle">
+                        <i class="bi bi-person-bounding-box fs-3"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1">Student Academic Profile</h4>
+                        <p class="text-secondary small mb-0">Update your academic credentials, technical skills, and verified resume</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.name.label.text }}</label>
+                            {{ form.name(class="form-control") }}
+                            {% for error in form.name.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.roll_no.label.text }} (Verified)</label>
+                            {{ form.roll_no(class="form-control bg-light") }}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.branch.label.text }}</label>
+                            {{ form.branch(class="form-select") }}
+                            {% for error in form.branch.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.passing_year.label.text }}</label>
+                            {{ form.passing_year(class="form-control") }}
+                            {% for error in form.passing_year.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.cgpa.label.text }}</label>
+                            {{ form.cgpa(class="form-control", step="0.01") }}
+                            {% for error in form.cgpa.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">{{ form.active_backlogs.label.text }}</label>
+                            {{ form.active_backlogs(class="form-control") }}
+                            {% for error in form.active_backlogs.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small text-secondary">{{ form.skills.label.text }}</label>
+                        {{ form.skills(class="form-control", rows="3") }}
+                        {% for error in form.skills.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- RESUME SECTION -->
+                    <div class="p-3 bg-light rounded-3 border mb-4">
+                        <label class="form-label fw-bold text-dark mb-2">Resume Document (PDF)</label>
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                            <div>
+                                {% if student.resume_path %}
+                                    <div class="text-success fw-semibold small">
+                                        <i class="bi bi-file-earmark-pdf-fill me-1 fs-5"></i> Current Resume Uploaded
+                                    </div>
+                                    <div class="small text-muted">{{ student.resume_path }}</div>
+                                {% else %}
+                                    <div class="text-danger fw-semibold small">
+                                        <i class="bi bi-exclamation-triangle-fill me-1"></i> No resume uploaded. You must upload a resume to apply for drives.
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if student.resume_path %}
+                            <a href="{{ url_for('student.download_resume', filename=student.resume_path) }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-download me-1"></i> View / Download Current Resume
+                            </a>
+                            {% endif %}
+                        </div>
+
+                        {{ form.resume(class="form-control", accept=".pdf") }}
+                        <div class="form-text small">Upload replacement PDF to update your resume (Max 5MB).</div>
+                        {% for error in form.resume.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('student.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+                        {{ form.submit(class="btn btn-primary px-4 fw-semibold") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

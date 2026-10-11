@@ -1,0 +1,34 @@
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Database
+*.db
+*.sqlite3
+instance/
+
+# Pytest / Test Artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+tests/test_uploads/
+
+# Resumes / Uploads
+app/uploads/resumes/*
+!app/uploads/resumes/sample_student_resume.pdf
+!app/uploads/resumes/.gitkeep
+
+# macOS & Editor files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo

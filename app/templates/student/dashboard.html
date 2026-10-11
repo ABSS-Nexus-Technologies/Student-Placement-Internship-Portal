@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}Student Dashboard - TPO Portal{% endblock %}
+
+{% block content %}
+<!-- HEADER PROFILE GREETING -->
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h3 class="fw-bold mb-1">Welcome back, {{ student.name }}!</h3>
+        <div class="text-secondary small d-flex flex-wrap align-items-center gap-3">
+            <span><i class="bi bi-card-text me-1"></i><strong>Roll:</strong> {{ student.roll_no }}</span>
+            <span><i class="bi bi-mortarboard me-1"></i><strong>Branch:</strong> {{ student.branch }} ({{ student.passing_year }})</span>
+            <span><i class="bi bi-graph-up me-1"></i><strong>CGPA:</strong> {{ student.cgpa }}</span>
+            <span><i class="bi bi-exclamation-circle me-1"></i><strong>Backlogs:</strong> {{ student.active_backlogs }}</span>
+        </div>
+    </div>
+    <div class="mt-3 mt-md-0 d-flex gap-2">
+        {% if student.is_placed %}
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fs-6">
+                <i class="bi bi-trophy-fill me-1"></i> Placed ({{ student.highest_offer }} LPA)
+            </span>
+        {% else %}
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fs-6">
+                <i class="bi bi-search me-1"></i> Actively Seeking
+            </span>
+        {% endif %}
+        <a href="{{ url_for('student.profile') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-pencil-square me-1"></i> Edit Profile
+        </a>
+    </div>
+</div>
+
+<!-- STAT CARDS -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Eligible Drives</span>
+                <div class="stat-card-icon stat-icon-blue">
+                    <i class="bi bi-award-fill"></i>
+                </div>
+            </div>
+            <div class="stat-card-value">{{ total_eligible_count }}</div>
+            <div class="stat-card-caption">Matching your branch & CGPA</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <span class="stat-card-title">My Applications</span>
+                <div class="stat-card-icon stat-icon-amber">
+                    <i class="bi bi-send-check-fill"></i>
+                </div>
+            </div>
+            <div class="stat-card-value">{{ applications|length }}</div>
+            <div class="stat-card-caption">Submitted recruitment drives</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Placement Offers</span>
+                <div class="stat-card-icon stat-icon-green">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+            </div>
+            <div class="stat-card-value">{{ placements|length }}</div>
+            <div class="stat-card-caption">Highest: {{ student.highest_offer }} LPA</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Resume Status</span>
+                <div class="stat-card-icon stat-icon-purple">
+                    <i class="bi bi-file-earmark-pdf-fill"></i>
+                </div>
+            </div>
+            <div class="stat-card-value fs-5 mt-1">
+                {% if student.resume_path %}
+                    <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> Uploaded</span>
+                {% else %}
+                    <span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i> Missing</span>
+                {% endif %}
+            </div>
+            <div class="stat-card-caption">
+                {% if student.resume_path %}
+                    <a href="{{ url_for('student.download_resume', filename=student.resume_path) }}" target="_blank" class="text-primary text-decoration-none">View PDF</a>
+                {% else %}
+                    <a href="{{ url_for('student.profile') }}" class="text-danger text-decoration-none">Upload Now</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- ELIGIBLE DRIVES PREVIEW -->
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-bold"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Upcoming Eligible Drives</span>
+                <a href="{{ url_for('student.drives') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                {% if eligible_drives %}
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Company & Role</th>
+                                    <th>Package</th>
+                                    <th>Deadline</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in eligible_drives %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold text-dark">{{ item.drive.title }}</div>
+                                        <div class="small text-muted">{{ item.drive.company.name }} &bull; <span class="badge bg-light text-dark border">{{ item.drive.type.title() }}</span></div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-semibold text-success">{{ item.drive.package_or_stipend }} LPA</span>
+                                    </td>
+                                    <td>
+                                        <span class="small text-secondary">{{ item.drive.last_date.strftime('%d %b %Y') }}</span>
+                                    </td>
+                                    <td class="text-end">
+                                        {% if item.has_applied %}
+                                            <span class="badge badge-status badge-status-applied"><i class="bi bi-check2"></i> Applied</span>
+                                        {% else %}
+                                            <form method="POST" action="{{ url_for('student.apply_drive', drive_id=item.drive.drive_id) }}" class="d-inline">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="btn btn-sm btn-primary">
+                                                    Apply 1-Click
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                        No active campus drives matching your criteria right now. Check back soon!
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- RECENT ACTIVITY & NOTIFICATIONS -->
+    <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-bold"><i class="bi bi-bell-fill text-primary me-2"></i>Recent Notifications</span>
+                <a href="{{ url_for('student.notifications') }}" class="btn btn-sm btn-outline-secondary">History</a>
+            </div>
+            <div class="card-body p-3">
+                {% if recent_notifs %}
+                    <div class="d-flex flex-column gap-3">
+                        {% for n in recent_notifs %}
+                        <div class="p-2 rounded-2 {% if not n.is_read %}bg-light border-start border-3 border-primary{% else %}bg-transparent{% endif %}">
+                            <div class="small text-dark mb-1">{{ n.message }}</div>
+                            <div class="text-muted" style="font-size: 0.72rem;">{{ n.sent_on.strftime('%d %b, %I:%M %p') }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="bi bi-chat-square-dots fs-3 d-block mb-2"></i>
+                        No new notifications at this time.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
