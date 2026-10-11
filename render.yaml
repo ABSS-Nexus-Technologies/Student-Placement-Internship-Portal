@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: student-placement-portal
+    env: python
+    buildCommand: pip install -r requirements.txt && python seeds/seed_data.py
+    startCommand: gunicorn run:app --workers 2 --timeout 120
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.11.9

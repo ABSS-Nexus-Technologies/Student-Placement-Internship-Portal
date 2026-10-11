@@ -8,3 +8,4 @@ Flask-Mail>=0.10.0
 pandas>=2.2.0
 openpyxl>=3.1.5
 pytest>=8.0.0
+gunicorn>=22.0.0
